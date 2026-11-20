@@ -53,7 +53,7 @@ function mostrarEntrada() {
   };
   document.head.appendChild(s);
 }
-document.getElementById('ent_cod').onclick = function () { document.getElementById('ent').style.display = 'none'; };
+document.getElementById('ent_cod').onclick = function () { document.getElementById('ent').style.display = 'none'; if (PORTAL) PORTAL.postMessage({ cev: 'usarCodigo' }, '*'); };
 window.addEventListener('message', function (ev) {
   var m = ev.data || {}; if (!m.cev) return;
   if (m.cev === 'pideSesion') { PORTAL = ev.source; PORTAL.postMessage({ cev: 'sesionGuardada', token: guardado() }, '*'); }
