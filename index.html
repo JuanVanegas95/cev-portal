@@ -17,14 +17,40 @@ html,body{margin:0;height:100%;background:#2B3036;overflow:hidden}
 #portal{position:fixed;inset:0;width:100%;height:100%;border:0;background:#F4F5F6;padding-top:env(safe-area-inset-top)}
 #carga{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#2B3036;color:#fff;font-family:Arial,sans-serif;transition:opacity .4s}
 #carga img{width:96px;height:96px;border-radius:20px}
+#rec{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font-family:Arial,sans-serif;z-index:9}
+#rec div{background:#fff;border-radius:14px;padding:22px 26px;text-align:center;min-width:240px}
+#rec b{display:block;font-size:26px;margin:10px 0 16px;color:#2B3036}
+#rec button{border:0;border-radius:8px;padding:10px 16px;font-size:15px;margin:0 4px;background:#3D434A;color:#fff}
+#rec button.sec{background:#E6E8EA;color:#2B3036}
 #carga p{margin-top:14px;font-size:14px;color:#C3C8CE}
 </style>
 </head>
 <body>
 <div id="carga"><img src="https://lh3.googleusercontent.com/d/1WB5Ua2w2fk9815wBQfZxvhCiECnHW1lG" alt="CEV"><p>Consultora Estructural Vanegas</p></div>
-<iframe id="portal" src="https://script.google.com/macros/s/AKfycbyb73VD01eKQsynWj-roJF3xrOKwsHJFNc1DpuXTqOGumnqD2CXTyji4VryBsSvDdtrgA/exec" allow="clipboard-write" title="Portal CEV"></iframe>
+<div id="rec"><div>🎙 Grabando nota de voz<b id="rec_t">0:00</b><button id="rec_ok">Detener y adjuntar</button><button class="sec" id="rec_no">Cancelar</button></div></div>
+<iframe id="portal" src="https://script.google.com/macros/s/AKfycbyb73VD01eKQsynWj-roJF3xrOKwsHJFNc1DpuXTqOGumnqD2CXTyji4VryBsSvDdtrgA/exec" allow="clipboard-write; microphone" title="Portal CEV"></iframe>
 <script>
 document.getElementById('portal').addEventListener('load', function () { var c = document.getElementById('carga'); c.style.opacity = 0; setTimeout(function () { c.remove(); }, 450); });
+// Nota de voz: el portal (iframe) pide grabar; aquí sí hay permiso de micrófono. El audio vuelve al portal por postMessage.
+window.addEventListener('message', function (ev) {
+  if (!ev.data || ev.data.cev !== 'grabar') return;
+  var fuente = ev.source; fuente.postMessage({ cev: 'listo' }, '*');
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function (st) {
+    var rec = new MediaRecorder(st), partes = [], cancelado = false, t0 = Date.now(), caja = document.getElementById('rec');
+    var reloj = setInterval(function () { var s = Math.round((Date.now() - t0) / 1000); document.getElementById('rec_t').textContent = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }, 500);
+    rec.ondataavailable = function (e) { partes.push(e.data); };
+    rec.onstop = function () {
+      clearInterval(reloj); caja.style.display = 'none'; st.getTracks().forEach(function (t) { t.stop(); });
+      if (cancelado) return;
+      var mime = rec.mimeType || 'audio/webm', fr = new FileReader();
+      fr.onload = function () { fuente.postMessage({ cev: 'audio', mime: mime, b64: String(fr.result).split(',')[1] }, '*'); };
+      fr.readAsDataURL(new Blob(partes, { type: mime }));
+    };
+    document.getElementById('rec_ok').onclick = function () { rec.stop(); };
+    document.getElementById('rec_no').onclick = function () { cancelado = true; rec.stop(); };
+    document.getElementById('rec_t').textContent = '0:00'; caja.style.display = 'flex'; rec.start();
+  }).catch(function () { alert('No se pudo usar el micrófono. Revise el permiso de micrófono para esta app.'); });
+});
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
