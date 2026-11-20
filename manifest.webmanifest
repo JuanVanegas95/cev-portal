@@ -1,0 +1,30 @@
+{
+  "name": "CEV · Consultora Estructural Vanegas",
+  "short_name": "CEV",
+  "description": "Portal de proyectos, entregas y cuentas de la Consultora Estructural Vanegas",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2B3036",
+  "theme_color": "#2B3036",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/1WB5Ua2w2fk9815wBQfZxvhCiECnHW1lG",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/1ow46W1HX10zG-Qw9er7vwIHWqAkqQbxG",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/146DE6iucfm18w8dnWbpFjofyH4x56C7m",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
